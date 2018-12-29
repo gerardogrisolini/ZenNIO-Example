@@ -1,3 +1,3 @@
 # ZenNIO-Example
 
-A description of this package.
+Example REST API implementation with SQLite.
