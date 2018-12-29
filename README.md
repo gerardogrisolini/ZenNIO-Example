@@ -15,7 +15,7 @@ brew install nghttp2
 apt-get install -y git curl libatomic1 libicu60 libxml2 libz-dev pkg-config clang netcat-openbsd lsof perl nghttp2 libnghttp2-dev
 ```
 
-### Run
+## Run
 ```
 swift run
 
