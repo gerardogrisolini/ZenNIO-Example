@@ -18,4 +18,11 @@ apt-get install -y git curl libatomic1 libicu60 libxml2 libz-dev pkg-config clan
 ### Run
 ```
 swift run
+
+```
+
+### Open
+```
+http://localhost:8080
+
 ```
