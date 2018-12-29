@@ -15,14 +15,14 @@ brew install nghttp2
 apt-get install -y git curl libatomic1 libicu60 libxml2 libz-dev pkg-config clang netcat-openbsd lsof perl nghttp2 libnghttp2-dev
 ```
 
-## Run
+## Clone and run
 ```
+git clone https://github.com/gerardogrisolini/ZenNIO-Example.git
+cd ZenNIO-Example
 swift run
-
 ```
 
 ### Open
 ```
 http://localhost:8080
-
 ```
