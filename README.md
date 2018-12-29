@@ -22,7 +22,7 @@ cd ZenNIO-Example
 swift run
 ```
 
-### Open
+### Html test page
 ```
 http://localhost:8080
 ```
