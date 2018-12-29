@@ -1,6 +1,6 @@
 //
 //  Person.swift
-//  ZenNIO-SQLite
+//  ZenNIO-Example
 //
 //  Created by admin on 29/12/2018.
 //
