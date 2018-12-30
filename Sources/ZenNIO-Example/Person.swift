@@ -112,7 +112,6 @@ class PersonApi {
             let promise = req.session.eventLoop.newPromise(of: Bool.self)
             let task = personApi.deletePerson(id: id, promise: promise)
             task.whenSuccess { item in
-                try? res.send(json: item)
                 res.completed(.noContent)
             }
             task.whenFailure { error in
