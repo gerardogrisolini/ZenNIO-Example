@@ -86,15 +86,14 @@ function getPerson(id) {
 
 function getPersons() {
     document.getElementById('content').innerHTML = '';
-    fetch('http://192.168.1.28:8080/api/person', {
+    fetch('/api/person', {
+        headers: {
+            //'Origin': '*',
+            'Content-Type': 'application/json;charset=UTF-8'
+        },
         method : 'GET',
         cache: 'no-cache',
-        mode: 'cors',
-        //credentials: 'include',
-        headers: {
-          'Origin': '*',
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
+        //mode: 'cors'
     })
     .then(response => response.json())
     .then(json => showPersons(json))
