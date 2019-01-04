@@ -19,6 +19,6 @@ let db = Database(configuration: try SQLiteDatabaseConfiguration("ZenNIO.db"))
 let personApi = PersonApi(db: db)
 personApi.makeRoutes(router: router)
 
-let server = ZenNIO(port: 8080, router: router)
+let server = ZenNIO(host: "0.0.0.0",port: 8080, router: router)
 server.webroot = "./webroot"
 try server.start()

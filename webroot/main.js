@@ -31,7 +31,7 @@ function insertPerson(json) {
     fetch('/api/person', {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': 'Bearer ' + token
+            'Authorization': token
         },
         method : 'POST',
         cache: 'no-cache',
@@ -46,7 +46,7 @@ function updatePerson(id, json) {
     fetch('/api/person/' + id, {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': 'Bearer ' + token
+            'Authorization': token
         },
         method : 'PUT',
         cache: 'no-cache',
@@ -61,7 +61,7 @@ function deletePerson(id) {
     fetch('/api/person/' + id, {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': 'Bearer ' + token
+            'Authorization': token
         },
         method : 'DELETE',
         cache: 'no-cache'
@@ -74,7 +74,7 @@ function deletePerson(id) {
 function getPerson(id) {
     fetch('/api/person/' + id, {
         headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
+            'Content-Type': 'application/json;charset=UTF-8'
         },
         method : 'GET',
         cache: 'no-cache'
@@ -86,12 +86,15 @@ function getPerson(id) {
 
 function getPersons() {
     document.getElementById('content').innerHTML = '';
-    fetch('/api/person', {
-        headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-        },
+    fetch('http://192.168.1.28:8080/api/person', {
         method : 'GET',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        mode: 'cors',
+        //credentials: 'include',
+        headers: {
+          'Origin': '*',
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
     })
     .then(response => response.json())
     .then(json => showPersons(json))

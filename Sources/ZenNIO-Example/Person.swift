@@ -38,9 +38,8 @@ class PersonApi {
             res.completed(.found)
         }
 
-        router.get("/api/person") { req, res in
-            let promise = req.session.eventLoop.newPromise(of: [Person].self)
-            let task = personApi.selectAllPerson(promise: promise)
+        router.get("/api/person") { req, res in            
+            let task = personApi.selectAllPerson(eventLoop: req.session.eventLoop)
             task.whenSuccess { items in
                 try? res.send(json: items)
                 res.completed()
@@ -57,8 +56,7 @@ class PersonApi {
                 return
             }
             
-            let promise = req.session.eventLoop.newPromise(of: Person?.self)
-            let task = personApi.selectPerson(id: id, promise: promise)
+            let task = personApi.selectPerson(id: id, eventLoop: req.session.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed()
@@ -75,8 +73,7 @@ class PersonApi {
                 return
             }
             
-            let promise = req.session.eventLoop.newPromise(of: Person.self)
-            let task = personApi.insertPerson(data: data, promise: promise)
+            let task = personApi.insertPerson(data: data, eventLoop: req.session.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.created)
@@ -92,8 +89,8 @@ class PersonApi {
                 res.completed(.badRequest)
                 return
             }
-            let promise = req.session.eventLoop.newPromise(of: Person.self)
-            let task = personApi.updatePerson(id: id, data: data, promise: promise)
+            
+            let task = personApi.updatePerson(id: id, data: data, eventLoop: req.session.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.accepted)
@@ -109,8 +106,8 @@ class PersonApi {
                 res.completed(.badRequest)
                 return
             }
-            let promise = req.session.eventLoop.newPromise(of: Bool.self)
-            let task = personApi.deletePerson(id: id, promise: promise)
+            
+            let task = personApi.deletePerson(id: id, eventLoop: req.session.eventLoop)
             task.whenSuccess { item in
                 res.completed(.noContent)
             }
@@ -121,62 +118,77 @@ class PersonApi {
         }
     }
     
-    fileprivate func selectAllPerson(promise: EventLoopPromise<[Person]>) -> EventLoopFuture<[Person]> {
-        do {
-            let items = try db.table(Person.self)
-                .order(by: \.lastName, \.firstName)
-                .select()
-                .map { $0 }
-            promise.succeed(result: items)
-        } catch {
-            promise.fail(error: error)
+    fileprivate func selectAllPerson(eventLoop: EventLoop) -> EventLoopFuture<[Person]> {
+        let promise = eventLoop.newPromise(of: [Person].self)
+        eventLoop.execute {
+            do {
+                let items = try self.db.table(Person.self)
+                    .order(by: \.lastName, \.firstName)
+                    .select()
+                    .map { $0 }
+                promise.succeed(result: items)
+            } catch {
+                promise.fail(error: error)
+            }
         }
         return promise.futureResult
     }
 
-    fileprivate func selectPerson(id: UUID, promise: EventLoopPromise<Person?>) -> EventLoopFuture<Person?> {
-        do {
-            let item = try db.table(Person.self)
-                .where(\Person.id == id)
-                .first()
-            promise.succeed(result: item)
-        } catch {
-            promise.fail(error: error)
+    fileprivate func selectPerson(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Person?> {
+        let promise = eventLoop.newPromise(of: Person?.self)
+        eventLoop.execute {
+            do {
+                let item = try self.db.table(Person.self)
+                    .where(\Person.id == id)
+                    .first()
+                promise.succeed(result: item)
+            } catch {
+                promise.fail(error: error)
+            }
         }
         return promise.futureResult
     }
 
-    fileprivate func insertPerson(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        do {
-            var item = try JSONDecoder().decode(Person.self, from: data)
-            item.id = UUID()
-            try db.table(Person.self).insert(item)
-            promise.succeed(result: item)
-        } catch {
-            promise.fail(error: error)
+    fileprivate func insertPerson(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
+        let promise = eventLoop.newPromise(of: Person.self)
+        eventLoop.execute {
+            do {
+                var item = try JSONDecoder().decode(Person.self, from: data)
+                item.id = UUID()
+                try self.db.table(Person.self).insert(item)
+                promise.succeed(result: item)
+            } catch {
+                promise.fail(error: error)
+            }
         }
         return promise.futureResult
     }
 
-    fileprivate func updatePerson(id: UUID, data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        do {
-            let item = try JSONDecoder().decode(Person.self, from: data)
-            try db.table(Person.self)
-                .where(\Person.id == id)
-                .update(item, setKeys: \.firstName, \.lastName)
-            promise.succeed(result: item)
-        } catch {
-            promise.fail(error: error)
+    fileprivate func updatePerson(id: UUID, data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
+        let promise = eventLoop.newPromise(of: Person.self)
+        eventLoop.execute {
+            do {
+                let item = try JSONDecoder().decode(Person.self, from: data)
+                try self.db.table(Person.self)
+                    .where(\Person.id == id)
+                    .update(item, setKeys: \.firstName, \.lastName)
+                promise.succeed(result: item)
+            } catch {
+                promise.fail(error: error)
+            }
         }
         return promise.futureResult
     }
 
-    fileprivate func deletePerson(id: UUID, promise: EventLoopPromise<Bool>) -> EventLoopFuture<Bool> {
-        do {
-            try db.table(Person.self).where(\Person.id == id).delete()
-            promise.succeed(result: true)
-        } catch {
-            promise.fail(error: error)
+    fileprivate func deletePerson(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Bool> {
+        let promise = eventLoop.newPromise(of: Bool.self)
+        eventLoop.execute {
+            do {
+                try self.db.table(Person.self).where(\Person.id == id).delete()
+                promise.succeed(result: true)
+            } catch {
+                promise.fail(error: error)
+            }
         }
         return promise.futureResult
     }
