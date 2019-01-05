@@ -11,6 +11,7 @@ import PerfectSQLite
 
 
 let router = Router()
+//router.addCORS()
 router.addAuthentication(handler: { (email, password) -> (Bool) in
     return email == "admin" && password == "admin"
 })
@@ -24,6 +25,7 @@ hello.makeRoutes(router: router)
 
 let server = ZenNIO(host: "0.0.0.0",port: 8080, router: router)
 server.webroot = "./webroot"
+
 //try server.addSSL(
 //    certFile: "/Users/admin/Projects/ZenNIO/cert.pem",
 //    keyFile: "/Users/admin/Projects/ZenNIO/key.pem",

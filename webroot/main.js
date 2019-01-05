@@ -86,6 +86,7 @@ function getPerson(id) {
 
 function getPersons() {
     document.getElementById('content').innerHTML = '';
+    // CORS: change the URL for example in http://192.168.1.10:8080/api/person and uncomment the lines below
     fetch('/api/person', {
         headers: {
             //'Origin': '*',
