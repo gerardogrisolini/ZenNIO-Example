@@ -33,12 +33,13 @@ class PersonApi {
     }
 
     func makeRoutes(router: Router) {
+        
         router.get("/") { req, res in
             res.addHeader(.location, value: "/web/index.html")
             res.completed(.found)
         }
 
-        router.get("/api/person") { req, res in            
+        router.get("/api/person") { req, res in
             let task = personApi.selectAllPerson(eventLoop: req.session.eventLoop)
             task.whenSuccess { items in
                 try? res.send(json: items)

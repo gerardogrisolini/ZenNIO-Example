@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Hello</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h1>Hello {{ name }}!</h1>
+    <ul> House
+        {% for houseAnimal in houseAnimals %}
+        <li>{{ houseAnimal }}</li>
+        {% endfor %}
+    </ul>
+    <ul> Farm
+        {% for farmAnimal in farmAnimals %}
+        <li>{{ farmAnimal }}</li>
+        {% endfor %}
+    </ul>
+    <ul> City
+        {% for cityAnimal in cityAnimals %}
+        <li>{{ cityAnimal }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Counter: {{ counter }}</h3>
+</body>
+</html>
