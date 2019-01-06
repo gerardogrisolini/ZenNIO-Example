@@ -45,7 +45,7 @@ class Hello {
                 }
                 
                 let json = [
-                    "ip": req.session!.ip,
+                    "ip": req.session.ip,
                     "message": "Hello \(name)!"
                 ]
                 try res.send(json: json)

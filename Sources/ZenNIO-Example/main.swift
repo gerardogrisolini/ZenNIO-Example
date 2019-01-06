@@ -23,7 +23,7 @@ personApi.makeRoutes(router: router)
 let hello = Hello()
 hello.makeRoutes(router: router)
 
-let server = ZenNIO(host: "0.0.0.0",port: 8080, router: router)
+let server = ZenNIO(host: "0.0.0.0", port: 8888, router: router)
 server.webroot = "./webroot"
 
 //try server.addSSL(

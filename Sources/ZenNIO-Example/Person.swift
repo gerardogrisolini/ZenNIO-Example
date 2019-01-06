@@ -35,7 +35,7 @@ class PersonApi {
     func makeRoutes(router: Router) {
         
         router.get("/") { req, res in
-            res.addHeader(.location, value: "/web/index.html")
+            res.addHeader(.location, value: "/index.html")
             res.completed(.found)
         }
 
