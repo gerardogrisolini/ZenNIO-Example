@@ -35,8 +35,18 @@ class PersonApi {
     func makeRoutes(router: Router) {
         
         router.get("/") { req, res in
-            res.addHeader(.location, value: "/index.html")
-            res.completed(.found)
+            let task = personApi.selectAllPerson(eventLoop: req.session.eventLoop)
+            task.whenSuccess { items in
+                let context: [String:Any] = [
+                    "persons": items
+                ]
+                try? res.send(template: "person.html", context: context)
+                res.completed()
+            }
+            task.whenFailure { error in
+                print(error)
+                res.completed(.internalServerError)
+            }
         }
 
         router.get("/api/person") { req, res in

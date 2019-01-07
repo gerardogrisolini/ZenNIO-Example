@@ -8,10 +8,10 @@
 import ZenNIO
 
 class Hello {
-    let houseAnimals = ["🐶", "🐱"]
-    let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
-    let cityAnimals = ["🐦", "🐭"]
-    var counter = 0
+    fileprivate let houseAnimals = ["🐶", "🐱"]
+    fileprivate let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
+    fileprivate let cityAnimals = ["🐦", "🐭"]
+    fileprivate var counter = 0
     
     func makeRoutes(router: Router) {
         router.get("/hello") { req, res in

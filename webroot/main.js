@@ -19,14 +19,6 @@ function savePerson() {
     }
 }
 
-function reset(json) {
-    alert(JSON.stringify(json));
-    document.getElementById("id").value = '00000000-0000-0000-0000-000000000000';
-    document.getElementById("firstName").value = '';
-    document.getElementById("lastName").value = '';
-    document.getElementById("email").value = '';
-}
-
 function insertPerson(json) {
     fetch('/api/person', {
         headers: {
@@ -38,7 +30,7 @@ function insertPerson(json) {
         body: json
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => reset(json))
+    .then(json => location.reload())
     .catch(error => console.log(error));
 }
 
@@ -53,7 +45,7 @@ function updatePerson(id, json) {
         body: json
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => reset(json))
+    .then(json => location.reload())
     .catch(error => console.log(error));
 }
 
@@ -67,7 +59,7 @@ function deletePerson(id) {
         cache: 'no-cache'
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response)
-    .then(response => getPersons())
+    .then(response => location.reload())
     .catch(error => console.log(error));
 }
 
@@ -80,21 +72,28 @@ function getPerson(id) {
         cache: 'no-cache'
     })
     .then(response => response.json())
-    .then(json => alert(JSON.stringify(json)))
+    .then(json => selectPerson(json.id, json.firstName, json.lastName, json.email))
     .catch(error => console.log(error));
 }
 
+function selectPerson(id, firstName, lastName, email) {
+    document.getElementById("id").value = id;
+    document.getElementById("firstName").value = firstName;
+    document.getElementById("lastName").value = lastName;
+    document.getElementById("email").value = email;
+}
+
+/*
 function getPersons() {
     document.getElementById('content').innerHTML = '';
-    // CORS: change the URL for example in http://192.168.1.10:8080/api/person and uncomment the lines below
-    fetch('/api/person', {
+    fetch('http://192.168.1.10:8080/api/person', {
         headers: {
-            //'Origin': '*',
+            'Origin': '*',
             'Content-Type': 'application/json;charset=UTF-8'
         },
         method : 'GET',
         cache: 'no-cache',
-        //mode: 'cors'
+        mode: 'cors'
     })
     .then(response => response.json())
     .then(json => showPersons(json))
@@ -110,10 +109,5 @@ function showPersons(json) {
         document.getElementById('content').innerHTML += div;
     }
 }
+*/
 
-function selectPerson(id, firstName, lastName, email) {
-    document.getElementById("id").value = id;
-    document.getElementById("firstName").value = firstName;
-    document.getElementById("lastName").value = lastName;
-    document.getElementById("email").value = email;
-}
