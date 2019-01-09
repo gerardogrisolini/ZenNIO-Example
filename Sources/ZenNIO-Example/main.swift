@@ -17,11 +17,10 @@ router.addAuthentication(handler: { (email, password) -> (Bool) in
 })
 
 let db = Database(configuration: try SQLiteDatabaseConfiguration("ZenNIO.db"))
-let personApi = PersonApi(db: db)
-personApi.makeRoutes(router: router)
+ZenIoC.shared.register { PersonApi(db: db) as PersonApi }
 
-let hello = Hello()
-hello.makeRoutes(router: router)
+_ = PersonController(router: router)
+_ = HelloController(router: router)
 
 let server = ZenNIO(host: "0.0.0.0", port: 8888, router: router)
 server.webroot = "./webroot"

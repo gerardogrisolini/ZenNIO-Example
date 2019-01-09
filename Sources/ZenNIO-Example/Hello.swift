@@ -7,13 +7,14 @@
 
 import ZenNIO
 
-class Hello {
+class HelloController {
     fileprivate let houseAnimals = ["🐶", "🐱"]
     fileprivate let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
     fileprivate let cityAnimals = ["🐦", "🐭"]
     fileprivate var counter = 0
     
-    func makeRoutes(router: Router) {
+    init(router: Router) {
+
         router.get("/hello") { req, res in
             res.send(text: "Hello World!")
             res.completed()
