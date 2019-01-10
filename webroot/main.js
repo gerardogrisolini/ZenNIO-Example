@@ -2,16 +2,13 @@ var token = localStorage.getItem('token');
 
 function savePerson() {
     const id = document.getElementById("id").value;
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const email = document.getElementById("email").value;
-    if (id === '' || firstName === '' || lastName == '' || email == '') { return; }
     const json = JSON.stringify({
         id: id,
-        firstName: firstName,
-        lastName: lastName,
-        email: email
+        firstName: document.getElementById("firstname").value,
+        lastName: document.getElementById("lastname").value,
+        email: document.getElementById("email").value
     });
+    alert(id);
     if (id === '00000000-0000-0000-0000-000000000000') {
         insertPerson(json);
     } else {
@@ -30,7 +27,7 @@ function insertPerson(json) {
         body: json
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => location.reload())
+    .then(json => getPersons())
     .catch(error => console.log(error));
 }
 
@@ -45,7 +42,7 @@ function updatePerson(id, json) {
         body: json
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => location.reload())
+    .then(json => getPersons())
     .catch(error => console.log(error));
 }
 
@@ -59,7 +56,7 @@ function deletePerson(id) {
         cache: 'no-cache'
     })
     .then(response => response.status == 401 ? alert('401 - Unauthorized') : response)
-    .then(response => location.reload())
+    .then(response => getPersons())
     .catch(error => console.log(error));
 }
 
@@ -76,10 +73,31 @@ function getPerson(id) {
     .catch(error => console.log(error));
 }
 
+function getPersons() {
+    fetch('/tableview.html', {
+    headers: {
+            'Content-Type': 'text/html;charset=UTF-8'
+        },
+        method : 'GET',
+        cache: 'no-cache'
+    })
+    .then(response => response.text())
+    .then(html => document.getElementById('content').innerHTML = html)
+    .catch(error => console.log(error));
+    unselectPerson();
+}
+
+function unselectPerson() {
+    document.getElementById("id").value = '00000000-0000-0000-0000-000000000000';
+    document.getElementById("firstname").value = '';
+    document.getElementById("lastname").value = '';
+    document.getElementById("email").value = '';
+}
+
 function selectPerson(id, firstName, lastName, email) {
     document.getElementById("id").value = id;
-    document.getElementById("firstName").value = firstName;
-    document.getElementById("lastName").value = lastName;
+    document.getElementById("firstname").value = firstName;
+    document.getElementById("lastname").value = lastName;
     document.getElementById("email").value = email;
 }
 

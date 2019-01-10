@@ -1,8 +1,8 @@
 //
-//  Hello.swift
+//  HelloController.swift
 //  ZenNIO-Example
 //
-//  Created by admin on 05/01/2019.
+//  Created by Gerardo Grisolini on 10/01/2019.
 //
 
 import ZenNIO
@@ -14,7 +14,7 @@ class HelloController {
     fileprivate var counter = 0
     
     init(router: Router) {
-
+        
         router.get("/hello") { req, res in
             res.send(text: "Hello World!")
             res.completed()
@@ -22,7 +22,7 @@ class HelloController {
         
         router.get("/hello.html") { req, res in
             self.counter += 1
-
+            
             let context: [String : Any] = [
                 "name": "Animals",
                 "houseAnimals": self.houseAnimals,

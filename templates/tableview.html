@@ -1,0 +1,20 @@
+<table class="table">
+    <tr>
+        <td>Uuid</td>
+        <td>Firstname</td>
+        <td>LastName</td>
+        <td>Email</td>
+        <td colspan="2">Actions</td>
+    </tr>
+    {% for person in persons %}
+    <tr>
+        <td>{{ person.id }}</td>
+        <td>{{ person.firstName }}</td>
+        <td>{{ person.lastName }}</td>
+        <td>{{ person.email }}</td>
+        <td><input type="button" value="EDIT" onclick="getPerson('{{ person.id }}')"/></td>
+        <td><input type="button" value="DELETE" onclick="deletePerson('{{ person.id }}')"/></td>
+    </tr>
+    {% endfor %}
+</table>
+
