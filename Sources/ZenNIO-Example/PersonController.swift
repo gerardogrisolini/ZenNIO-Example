@@ -14,12 +14,12 @@ class PersonController {
     init(router: Router) {
         
         router.get("/") { req, res in
-            try? res.send(template: "index.html")
-            res.completed()
+            res.addHeader(.location, value: "/index.html")
+            res.completed(.found)
         }
         
         router.get("/tableview.html") { req, res in
-            let task = self.personApi.select(eventLoop: req.session.eventLoop)
+            let task = self.personApi.select(eventLoop: req.eventLoop)
             task.whenSuccess { items in
                 let context: [String:Any] = [
                     "persons": items
@@ -34,7 +34,7 @@ class PersonController {
         }
         
         router.get("/api/person") { req, res in
-            let task = self.personApi.select(eventLoop: req.session.eventLoop)
+            let task = self.personApi.select(eventLoop: req.eventLoop)
             task.whenSuccess { items in
                 try? res.send(json: items)
                 res.completed()
@@ -51,7 +51,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.select(id: id, eventLoop: req.session.eventLoop)
+            let task = self.personApi.select(id: id, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed()
@@ -68,7 +68,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.save(data: data, eventLoop: req.session.eventLoop)
+            let task = self.personApi.save(data: data, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.created)
@@ -85,7 +85,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.save(data: data, eventLoop: req.session.eventLoop)
+            let task = self.personApi.save(data: data, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.accepted)
@@ -102,7 +102,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.delete(id: id, eventLoop: req.session.eventLoop)
+            let task = self.personApi.delete(id: id, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 res.completed(.noContent)
             }

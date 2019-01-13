@@ -10,20 +10,19 @@ import PerfectCRUD
 import PerfectSQLite
 
 
-let router = Router()
-//router.addCORS()
-router.addAuthentication(handler: { (email, password) -> (Bool) in
-    return email == "admin" && password == "admin"
-})
-
 let db = Database(configuration: try SQLiteDatabaseConfiguration("ZenNIO.db"))
 ZenIoC.shared.register { PersonApi(db: db) as PersonApi }
 
+let router = Router()
 _ = PersonController(router: router)
 _ = HelloController(router: router)
 
 let server = ZenNIO(host: "0.0.0.0", port: 8888, router: router)
-server.webroot = "./webroot"
+server.addWebroot(path: "webroot")
+server.addAuthentication(handler: { (email, password) -> (Bool) in
+    return email == "admin" && password == "admin"
+})
+//server.addCORS()
 
 //try server.addSSL(
 //    certFile: "/Users/admin/Projects/ZenNIO/cert.pem",

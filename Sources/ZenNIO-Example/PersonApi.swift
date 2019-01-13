@@ -67,7 +67,7 @@ class PersonApi : TableApi {
                 } else {
                     try self.db.table(Person.self)
                         .where(\Person.id == item.id)
-                        .update(item, setKeys: \.firstName, \.lastName)
+                        .update(item, setKeys: \.firstName, \.lastName, \.email)
                 }
                 promise.succeed(result: item)
             } catch {

@@ -1,22 +1,19 @@
 var token = localStorage.getItem('token');
 
-function savePerson() {
-    const id = document.getElementById("id").value;
-    const json = JSON.stringify({
-        id: id,
-        firstName: document.getElementById("firstname").value,
-        lastName: document.getElementById("lastname").value,
-        email: document.getElementById("email").value
-    });
-    alert(id);
-    if (id === '00000000-0000-0000-0000-000000000000') {
-        insertPerson(json);
+function unauthorized() {
+    alert('401 - Unauthorized');
+    location.href = '/auth';
+}
+
+function savePerson(data) {
+    if (data.id === '00000000-0000-0000-0000-000000000000') {
+        insertPerson(data);
     } else {
-        updatePerson(id, json)
+        updatePerson(data)
     }
 }
 
-function insertPerson(json) {
+function insertPerson(data) {
     fetch('/api/person', {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -24,29 +21,30 @@ function insertPerson(json) {
         },
         method : 'POST',
         cache: 'no-cache',
-        body: json
+        body: JSON.stringify(data)
     })
-    .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => getPersons())
+    .then(response => response.status == 401 ? unauthorized() : response.json())
+    .then(json => console.log('Insert person id ' + json.id))
     .catch(error => console.log(error));
 }
 
-function updatePerson(id, json) {
-    fetch('/api/person/' + id, {
+function updatePerson(data) {
+    fetch('/api/person/' + data.id, {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': token
         },
         method : 'PUT',
         cache: 'no-cache',
-        body: json
+        body: JSON.stringify(data)
     })
-    .then(response => response.status == 401 ? alert('401 - Unauthorized') : response.json())
-    .then(json => getPersons())
+    .then(response => response.status == 401 ? unauthorized() : response.json())
+    .then(json => console.log('Update person id ' + json.id))
     .catch(error => console.log(error));
 }
 
-function deletePerson(id) {
+function deletePerson(row) {
+    var id = row.getData().id
     fetch('/api/person/' + id, {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -55,11 +53,62 @@ function deletePerson(id) {
         method : 'DELETE',
         cache: 'no-cache'
     })
-    .then(response => response.status == 401 ? alert('401 - Unauthorized') : response)
-    .then(response => getPersons())
+    .then(response => response.status == 401 ? unauthorized() : response)
+    .then(response => { row.delete(); console.log('Delete person id ' + id); })
     .catch(error => console.log(error));
 }
 
+function getPersons() {
+    var table = new Tabulator("#content", {
+                              height:"auto",
+                              selectable:true,          //selectable rows
+                              layout:"fitColumns",      //fit columns to width of table
+                              responsiveLayout:"hide",  //hide columns that dont fit on the table
+                              tooltips:false,            //show tool tips on cells
+                              addRowPos:"top",          //when adding a new row, add it to the top of the table
+                              history:false,             //allow undo and redo actions on the table
+                              pagination:"local",       //paginate the data
+                              paginationSize:5,         //allow 7 rows per page of data
+                              movableColumns:false,      //allow column order to be changed
+                              resizableRows:false,       //allow row order to be changed
+                              initialSort:[             //set the initial sort order of the data
+                                {column:"lastName", dir:"asc"},
+                              ],
+                              placeholder:"No Data Set",
+                              //rowClick: function(e, row) { // Trigger an alert message when the row is clicked.
+                              //    alert("Row " + row.getData().id + " Clicked!");
+                              //},
+                              cellEdited:function(cell){
+                                savePerson(cell.getRow().getData());
+                              },
+                              columns:[
+                                  {title:"Uuid", field:"id", sorter:"string", width:320, headerFilter:true, validator:"required"},
+                                  {title:"Lastname", field:"lastName", sorter:"string", editor:"input", headerFilter:true, validator:"required"},
+                                  {title:"Firstname", field:"firstName", sorter:"string", editor:"input", headerFilter:true, validator:"required"},
+                                  {title:"Email", field:"email", editor:"input", headerFilter:true, validator:"required"},
+                                  {formatter:"buttonCross", width:40, align:"center", headerSort:false, cellClick:function(e, cell) {
+                                          if (confirm('Are you sure you want to delete this entry?')) {
+                                              deletePerson(cell.getRow());
+                                          }
+                                      }
+                                  }
+                              ],
+                          });
+    table.setData("/api/person");
+    
+    var btn = document.createElement("BUTTON");
+    btn.setAttribute("title", "New");
+    btn.setAttribute("class", "tabulator-page");
+    btn.setAttribute("style", "float: left");
+    btn.onclick = function(){
+        table.addRow({id: "00000000-0000-0000-0000-000000000000"});
+    };
+    var t = document.createTextNode("+ New");
+    btn.appendChild(t);
+    document.getElementsByClassName("tabulator-paginator")[0].prepend(btn);
+}
+
+/*
 function getPerson(id) {
     fetch('/api/person/' + id, {
         headers: {
@@ -73,35 +122,6 @@ function getPerson(id) {
     .catch(error => console.log(error));
 }
 
-function getPersons() {
-    fetch('/tableview.html', {
-    headers: {
-            'Content-Type': 'text/html;charset=UTF-8'
-        },
-        method : 'GET',
-        cache: 'no-cache'
-    })
-    .then(response => response.text())
-    .then(html => document.getElementById('content').innerHTML = html)
-    .catch(error => console.log(error));
-    unselectPerson();
-}
-
-function unselectPerson() {
-    document.getElementById("id").value = '00000000-0000-0000-0000-000000000000';
-    document.getElementById("firstname").value = '';
-    document.getElementById("lastname").value = '';
-    document.getElementById("email").value = '';
-}
-
-function selectPerson(id, firstName, lastName, email) {
-    document.getElementById("id").value = id;
-    document.getElementById("firstname").value = firstName;
-    document.getElementById("lastname").value = lastName;
-    document.getElementById("email").value = email;
-}
-
-/*
 function getPersons() {
     document.getElementById('content').innerHTML = '';
     fetch('http://192.168.1.10:8080/api/person', {
@@ -128,4 +148,3 @@ function showPersons(json) {
     }
 }
 */
-
