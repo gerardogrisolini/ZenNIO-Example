@@ -17,22 +17,7 @@ class PersonController {
             res.addHeader(.location, value: "/index.html")
             res.completed(.found)
         }
-        
-        router.get("/tableview.html") { req, res in
-            let task = self.personApi.select(eventLoop: req.eventLoop)
-            task.whenSuccess { items in
-                let context: [String:Any] = [
-                    "persons": items
-                ]
-                try? res.send(template: "tableview.html", context: context)
-                res.completed()
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
-        }
-        
+                
         router.get("/api/person") { req, res in
             let task = self.personApi.select(eventLoop: req.eventLoop)
             task.whenSuccess { items in
