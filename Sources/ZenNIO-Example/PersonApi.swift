@@ -56,19 +56,29 @@ class PersonApi : TableApi {
         return promise.futureResult
     }
     
-    func save(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
+    func insert(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
         let promise = eventLoop.newPromise(of: Person.self)
         eventLoop.execute {
             do {
                 var item = try JSONDecoder().decode(Person.self, from: data)
-                if item.id.uuidString == "00000000-0000-0000-0000-000000000000" {
-                    item.id = UUID()
-                    try self.db.table(Person.self).insert(item)
-                } else {
-                    try self.db.table(Person.self)
-                        .where(\Person.id == item.id)
-                        .update(item, setKeys: \.firstName, \.lastName, \.email)
-                }
+                item.id = UUID()
+                try self.db.table(Person.self).insert(item)
+                promise.succeed(result: item)
+            } catch {
+                promise.fail(error: error)
+            }
+        }
+        return promise.futureResult
+    }
+
+    func update(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
+        let promise = eventLoop.newPromise(of: Person.self)
+        eventLoop.execute {
+            do {
+                let item = try JSONDecoder().decode(Person.self, from: data)
+                try self.db.table(Person.self)
+                    .where(\Person.id == item.id)
+                    .update(item, setKeys: \.firstName, \.lastName, \.email)
                 promise.succeed(result: item)
             } catch {
                 promise.fail(error: error)

@@ -24,7 +24,7 @@ function insertPerson(data) {
         body: JSON.stringify(data)
     })
     .then(response => response.status == 401 ? unauthorized() : response.json())
-    .then(json => console.log('Insert person id ' + json.id))
+    .then(json => { data.id = json.id; console.log('Insert person id ' + data.id); })
     .catch(error => console.log(error));
 }
 
@@ -101,7 +101,7 @@ function getPersons() {
     btn.setAttribute("class", "tabulator-page");
     btn.setAttribute("style", "float: left");
     btn.onclick = function(){
-        table.addRow({id: "00000000-0000-0000-0000-000000000000"});
+        table.addRow({id: "00000000-0000-0000-0000-000000000000", firstName: "", lastName: "", email: ""});
     };
     var t = document.createTextNode("+ New");
     btn.appendChild(t);

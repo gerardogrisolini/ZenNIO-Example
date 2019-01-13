@@ -12,6 +12,7 @@ protocol TableApi {
     associatedtype T: Codable
     func select(eventLoop: EventLoop) -> EventLoopFuture<[T]>
     func select(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<T?>
-    func save(data: Data, eventLoop: EventLoop) -> EventLoopFuture<T>
+    func insert(data: Data, eventLoop: EventLoop) -> EventLoopFuture<T>
+    func update(data: Data, eventLoop: EventLoop) -> EventLoopFuture<T>
     func delete(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Bool>
 }

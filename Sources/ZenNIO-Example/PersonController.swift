@@ -68,7 +68,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.save(data: data, eventLoop: req.eventLoop)
+            let task = self.personApi.insert(data: data, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.created)
@@ -85,7 +85,7 @@ class PersonController {
                 return
             }
             
-            let task = self.personApi.save(data: data, eventLoop: req.eventLoop)
+            let task = self.personApi.update(data: data, eventLoop: req.eventLoop)
             task.whenSuccess { item in
                 try? res.send(json: item)
                 res.completed(.accepted)
