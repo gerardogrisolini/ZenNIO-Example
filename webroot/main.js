@@ -61,7 +61,7 @@ function deletePerson(row) {
 function getPersons() {
     var table = new Tabulator("#content", {
                               height:"auto",
-                              selectable:true,          //selectable rows
+                              selectable:false,          //selectable rows
                               layout:"fitColumns",      //fit columns to width of table
                               responsiveLayout:"hide",  //hide columns that dont fit on the table
                               tooltips:false,            //show tool tips on cells
