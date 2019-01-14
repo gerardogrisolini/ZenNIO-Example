@@ -47,7 +47,7 @@ class PersonController {
             }
         }
         
-        router.post("/api/person", secure: true) { req, res in
+        router.post("/api/person") { req, res in
             guard let data = req.bodyData else {
                 res.completed(.badRequest)
                 return
@@ -64,7 +64,7 @@ class PersonController {
             }
         }
         
-        router.put("/api/person/:id", secure: true) { req, res in
+        router.put("/api/person/:id") { req, res in
             guard let data = req.bodyData else {
                 res.completed(.badRequest)
                 return
@@ -81,7 +81,7 @@ class PersonController {
             }
         }
         
-        router.delete("/api/person/:id", secure: true) { req, res in
+        router.delete("/api/person/:id") { req, res in
             guard let id = req.getParam(UUID.self, key: "id") else {
                 res.completed(.badRequest)
                 return

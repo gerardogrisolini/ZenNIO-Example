@@ -17,13 +17,15 @@ let router = Router()
 _ = PersonController(router: router)
 _ = HelloController(router: router)
 
-let server = ZenNIO(host: "0.0.0.0", port: 8888, router: router)
+let server = ZenNIO(router: router)
 server.addWebroot(path: "webroot")
 server.addAuthentication(handler: { (email, password) -> (Bool) in
     return email == "admin" && password == "admin"
 })
+server.addFilter(method: .POST, url: "/api/person")
+server.addFilter(method: .PUT, url: "/api/person/*")
+server.addFilter(method: .DELETE, url: "/api/person/*")
 //server.addCORS()
-
 //try server.addSSL(
 //    certFile: "/Users/admin/Projects/ZenNIO/cert.pem",
 //    keyFile: "/Users/admin/Projects/ZenNIO/key.pem",
