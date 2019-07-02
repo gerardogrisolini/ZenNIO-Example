@@ -6,11 +6,17 @@
 //
 
 import ZenNIO
-import PerfectCRUD
-import PerfectSQLite
+import ZenPostgres
 
-
-let db = Database(configuration: try SQLiteDatabaseConfiguration("ZenNIO.db"))
+let config = PostgresConfig(
+    host: "zenretail-db.westeurope.cloudapp.azure.com",
+    port: 5433,
+    tls: false,
+    username: "postgres",
+    password: "PwjwdwaEKk",
+    database: "tessilnova"
+)
+let db = try ZenPostgres(config: config)
 ZenIoC.shared.register { PersonApi(db: db) as PersonApi }
 
 let router = Router()
@@ -19,12 +25,15 @@ _ = HelloController(router: router)
 
 let server = ZenNIO(router: router)
 server.addWebroot(path: "webroot")
-server.addAuthentication(handler: { (email, password) -> (Bool) in
-    return email == "admin" && password == "admin"
+server.addAuthentication(handler: { (email, password) -> String? in
+    if email == "admin" && password == "admin" {
+        return "userId"
+    }
+    return nil
 })
-server.addFilter(method: .POST, url: "/api/person")
-server.addFilter(method: .PUT, url: "/api/person/*")
-server.addFilter(method: .DELETE, url: "/api/person/*")
+server.setFilter(true, methods: [.POST], url: "/api/person")
+server.setFilter(true, methods: [.PUT], url: "/api/person/*")
+server.setFilter(true, methods: [.DELETE], url: "/api/person/*")
 //server.addCORS()
 //try server.addSSL(
 //    certFile: "/Users/admin/Projects/ZenNIO/cert.pem",

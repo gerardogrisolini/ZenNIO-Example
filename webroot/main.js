@@ -6,9 +6,11 @@ function unauthorized() {
 }
 
 function savePerson(data) {
-    if (data.id === '00000000-0000-0000-0000-000000000000') {
+    alert(JSON.stringify(data));
+    if (data.id === 0) {
         insertPerson(data);
     } else {
+        data.id = parseInt(data.id);
         updatePerson(data)
     }
 }
@@ -82,7 +84,7 @@ function getPersons() {
                                 savePerson(cell.getRow().getData());
                               },
                               columns:[
-                                  {title:"Uuid", field:"id", sorter:"string", width:320, headerFilter:true, validator:"required"},
+                                  {title:"Id", field:"id", sorter:"number", width:320, headerFilter:true, validator:"required"},
                                   {title:"Lastname", field:"lastName", sorter:"string", editor:"input", headerFilter:true, validator:"required"},
                                   {title:"Firstname", field:"firstName", sorter:"string", editor:"input", headerFilter:true, validator:"required"},
                                   {title:"Email", field:"email", editor:"input", headerFilter:true, validator:"required"},
@@ -101,7 +103,7 @@ function getPersons() {
     btn.setAttribute("class", "tabulator-page");
     btn.setAttribute("style", "float: left");
     btn.onclick = function(){
-        table.addRow({id: "00000000-0000-0000-0000-000000000000", firstName: "", lastName: "", email: ""});
+        table.addRow({id: 0, firstName: "", lastName: "", email: ""});
     };
     var t = document.createTextNode("+ New");
     btn.appendChild(t);

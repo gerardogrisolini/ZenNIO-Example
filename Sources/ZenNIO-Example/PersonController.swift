@@ -31,7 +31,7 @@ class PersonController {
         }
         
         router.get("/api/person/:id") { req, res in
-            guard let id = req.getParam(UUID.self, key: "id") else {
+            guard let id: Int = req.getParam("id") else {
                 res.completed(.badRequest)
                 return
             }
@@ -82,7 +82,7 @@ class PersonController {
         }
         
         router.delete("/api/person/:id") { req, res in
-            guard let id = req.getParam(UUID.self, key: "id") else {
+            guard let id: Int = req.getParam("id") else {
                 res.completed(.badRequest)
                 return
             }

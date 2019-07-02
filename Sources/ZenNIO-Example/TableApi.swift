@@ -11,8 +11,8 @@ import NIO
 protocol TableApi {
     associatedtype T: Codable
     func select(eventLoop: EventLoop) -> EventLoopFuture<[T]>
-    func select(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<T?>
+    func select(id: Int, eventLoop: EventLoop) -> EventLoopFuture<T?>
     func insert(data: Data, eventLoop: EventLoop) -> EventLoopFuture<T>
     func update(data: Data, eventLoop: EventLoop) -> EventLoopFuture<T>
-    func delete(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Bool>
+    func delete(id: Int, eventLoop: EventLoop) -> EventLoopFuture<Bool>
 }

@@ -7,96 +7,125 @@
 
 import Foundation
 import NIO
-import PerfectCRUD
-import PerfectSQLite
+import ZenPostgres
+
 
 class PersonApi : TableApi {
 
-    private let db: Database<SQLiteDatabaseConfiguration>
+    private let db: Database
     
-    init(db: Database<SQLiteDatabaseConfiguration>) {
+    init(db: Database) {
         self.db = db
         do {
-            let table = try db.create(Person.self, primaryKey: \.id, policy: .reconcileTable)
-            try table.index(\.lastName)
-            try table.index(unique: true, \.email)
+            try Person().create()
         } catch {
             print(error)
         }
     }
     
     func select(eventLoop: EventLoop) -> EventLoopFuture<[Person]> {
-        let promise = eventLoop.newPromise(of: [Person].self)
-        eventLoop.execute {
-            do {
-                let items = try self.db.table(Person.self)
-                    .order(by: \.lastName, \.firstName)
-                    .select()
-                    .map { $0 }
-                promise.succeed(result: items)
-            } catch {
-                promise.fail(error: error)
+        let promise = eventLoop.makePromise(of: [Person].self)
+        self.db.connectAsync { conn in
+            if let db = conn {
+                Person(db: db).queryAsync(orderby: ["lastName", "firstName"]) { (result: Result<[Person], Error>) in
+                    switch result {
+                    case .success(let rows):
+                        promise.succeed(rows)
+                    case .failure(let error):
+                        promise.fail(error)
+                    }
+                    db.disconnect()
+                }
             }
         }
+        
         return promise.futureResult
     }
     
-    func select(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Person?> {
-        let promise = eventLoop.newPromise(of: Person?.self)
-        eventLoop.execute {
-            do {
-                let item = try self.db.table(Person.self)
-                    .where(\Person.id == id)
-                    .first()
-                promise.succeed(result: item)
-            } catch {
-                promise.fail(error: error)
+    func select(id: Int, eventLoop: EventLoop) -> EventLoopFuture<Person?> {
+        let promise = eventLoop.makePromise(of: Person?.self)
+        self.db.connectAsync { conn in
+            if let db = conn {
+                Person(db: db).getAsync(id) { (result: Result<Person?, Error>) in
+                    switch result {
+                    case .success(let row):
+                        promise.succeed(row)
+                    case .failure(let error):
+                        promise.fail(error)
+                    }
+                    db.disconnect()
+                }
             }
         }
+        
         return promise.futureResult
     }
     
     func insert(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
-        let promise = eventLoop.newPromise(of: Person.self)
-        eventLoop.execute {
-            do {
-                var item = try JSONDecoder().decode(Person.self, from: data)
-                item.id = UUID()
-                try self.db.table(Person.self).insert(item)
-                promise.succeed(result: item)
-            } catch {
-                promise.fail(error: error)
+        let promise = eventLoop.makePromise(of: Person.self)
+        do {
+            let item = try JSONDecoder().decode(Person.self, from: data)
+            self.db.connectAsync { conn in
+                if let db = conn {
+                    item.db = db
+                    item.saveAsync { id in
+                        item.id = id as! Int
+                        promise.succeed(item)
+                        db.disconnect()
+                    }
+                } else {
+                    promise.fail(ZenError.connectionNotFound)
+                }
             }
+        } catch {
+            promise.fail(error)
         }
+        
         return promise.futureResult
     }
 
     func update(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
-        let promise = eventLoop.newPromise(of: Person.self)
-        eventLoop.execute {
-            do {
-                let item = try JSONDecoder().decode(Person.self, from: data)
-                try self.db.table(Person.self)
-                    .where(\Person.id == item.id)
-                    .update(item, setKeys: \.firstName, \.lastName, \.email)
-                promise.succeed(result: item)
-            } catch {
-                promise.fail(error: error)
+        let promise = eventLoop.makePromise(of: Person.self)
+
+        do {
+            let item = try JSONDecoder().decode(Person.self, from: data)
+
+            self.db.connectAsync { conn in
+                if let db = conn {
+                    item.db = db
+                    item.saveAsync { _ in
+                        promise.succeed(item)
+                        db.disconnect()
+                    }
+                } else {
+                    promise.fail(ZenError.connectionNotFound)
+                }
             }
+            
+        } catch {
+            promise.fail(error)
         }
+        
         return promise.futureResult
     }
     
-    func delete(id: UUID, eventLoop: EventLoop) -> EventLoopFuture<Bool> {
-        let promise = eventLoop.newPromise(of: Bool.self)
-        eventLoop.execute {
-            do {
-                try self.db.table(Person.self).where(\Person.id == id).delete()
-                promise.succeed(result: true)
-            } catch {
-                promise.fail(error: error)
+    func delete(id: Int, eventLoop: EventLoop) -> EventLoopFuture<Bool> {
+        let promise = eventLoop.makePromise(of: Bool.self)
+
+        self.db.connectAsync { conn in
+            if let db = conn {
+                Person(db: db).deleteAsync(id) {  (result: Result<Int, Error>) in
+                    switch result {
+                    case .success(let count):
+                        promise.succeed(count > 0)
+                    case .failure(let error):
+                        promise.fail(error)
+                    }
+                    db.disconnect()
+                }
             }
         }
+
         return promise.futureResult
     }
 }

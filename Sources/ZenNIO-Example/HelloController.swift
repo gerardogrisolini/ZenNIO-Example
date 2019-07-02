@@ -6,6 +6,7 @@
 //
 
 import ZenNIO
+import ZenUI
 
 class HelloController {
     fileprivate let houseAnimals = ["🐶", "🐱"]
@@ -41,7 +42,7 @@ class HelloController {
         
         router.get("/hello/:name") { req, res in
             do {
-                guard let name = req.getParam(String.self, key: "name") else {
+                guard let name: String = req.getParam("name") else {
                     throw HttpError.badRequest
                 }
                 
