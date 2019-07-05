@@ -32,12 +32,7 @@ server.addAuthentication(handler: { (email, password) -> String? in
     return nil
 })
 server.setFilter(true, methods: [.POST], url: "/api/person")
-server.setFilter(true, methods: [.PUT], url: "/api/person/*")
-server.setFilter(true, methods: [.DELETE], url: "/api/person/*")
+server.setFilter(true, methods: [.PUT, .DELETE], url: "/api/person/*")
 //server.addCORS()
-//try server.addSSL(
-//    certFile: "/Users/admin/Projects/ZenNIO/cert.pem",
-//    keyFile: "/Users/admin/Projects/ZenNIO/key.pem",
-//    http: .v2
-//)
+
 try server.start()
