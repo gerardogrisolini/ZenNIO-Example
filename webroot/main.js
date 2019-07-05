@@ -6,28 +6,9 @@ function unauthorized() {
 }
 
 function savePerson(data) {
-    alert(JSON.stringify(data));
-    if (data.id === 0) {
-        insertPerson(data);
-    } else {
-        data.id = parseInt(data.id);
-        updatePerson(data)
-    }
-}
-
-function insertPerson(data) {
-    fetch('/api/person', {
-        headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': token
-        },
-        method : 'POST',
-        cache: 'no-cache',
-        body: JSON.stringify(data)
-    })
-    .then(response => response.status == 401 ? unauthorized() : response.json())
-    .then(json => { data.id = json.id; console.log('Insert person id ' + data.id); })
-    .catch(error => console.log(error));
+    //alert(JSON.stringify(data));
+    data.id = parseInt(data.id);
+    updatePerson(data)
 }
 
 function updatePerson(data) {
@@ -103,7 +84,23 @@ function getPersons() {
     btn.setAttribute("class", "tabulator-page");
     btn.setAttribute("style", "float: left");
     btn.onclick = function(){
-        table.addRow({id: 0, firstName: "", lastName: "", email: ""});
+        var data = {id: 0, firstName: "", lastName: "", email: ""};
+        fetch('/api/person', {
+              headers: {
+                  'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': token
+              },
+              method : 'POST',
+              cache: 'no-cache',
+              body: JSON.stringify(data)
+        })
+        .then(response => response.status == 401 ? unauthorized() : response.json())
+        .then(json => {
+              data.id = json.id;
+              table.addRow(data);
+              console.log('Insert person id ' + data.id);
+        })
+        .catch(error => console.log(error));
     };
     var t = document.createTextNode("+ New");
     btn.appendChild(t);
