@@ -17,11 +17,13 @@ let config = PostgresConfig(
     database: "tessilnova"
 )
 let db = try ZenPostgres(config: config)
+defer { try? db.close() }
+
 ZenIoC.shared.register { PersonApi(db: db) as PersonApi }
 
 let router = Router()
-_ = PersonController(router: router)
-_ = HelloController(router: router)
+makeHelloHandlers(router: router)
+makePersonHandlers(router: router)
 
 let server = ZenNIO(router: router)
 server.addWebroot(path: "webroot")

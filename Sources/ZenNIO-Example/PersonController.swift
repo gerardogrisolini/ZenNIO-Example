@@ -8,93 +8,92 @@
 import Foundation
 import ZenNIO
 
-class PersonController {
+func makePersonHandlers(router: Router) {
+    
     let personApi = ZenIoC.shared.resolve() as PersonApi
     
-    init(router: Router) {
-        
-        router.get("/") { req, res in
-            res.addHeader(.location, value: "/index.html")
-            res.completed(.found)
+    router.get("/") { req, res in
+        res.addHeader(.location, value: "/index.html")
+        res.completed(.found)
+    }
+    
+    router.get("/api/person") { req, res in
+        let task = personApi.select(eventLoop: req.eventLoop)
+        task.whenSuccess { items in
+            try? res.send(json: items)
+            res.completed()
         }
-                
-        router.get("/api/person") { req, res in
-            let task = self.personApi.select(eventLoop: req.eventLoop)
-            task.whenSuccess { items in
-                try? res.send(json: items)
-                res.completed()
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
         }
-        
-        router.get("/api/person/:id") { req, res in
-            guard let id: Int = req.getParam("id") else {
-                res.completed(.badRequest)
-                return
-            }
-            
-            let task = self.personApi.select(id: id, eventLoop: req.eventLoop)
-            task.whenSuccess { item in
-                try? res.send(json: item)
-                res.completed()
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
+    }
+    
+    router.get("/api/person/:id") { req, res in
+        guard let id: Int = req.getParam("id") else {
+            res.completed(.badRequest)
+            return
         }
         
-        router.post("/api/person") { req, res in
-            guard let data = req.bodyData else {
-                res.completed(.badRequest)
-                return
-            }
-            
-            let task = self.personApi.insert(data: data, eventLoop: req.eventLoop)
-            task.whenSuccess { item in
-                try? res.send(json: item)
-                res.completed(.created)
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
+        let task = personApi.select(id: id, eventLoop: req.eventLoop)
+        task.whenSuccess { item in
+            try? res.send(json: item)
+            res.completed()
+        }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
+        }
+    }
+    
+    router.post("/api/person") { req, res in
+        guard let data = req.bodyData else {
+            res.completed(.badRequest)
+            return
         }
         
-        router.put("/api/person/:id") { req, res in
-            guard let data = req.bodyData else {
-                res.completed(.badRequest)
-                return
-            }
-            
-            let task = self.personApi.update(data: data, eventLoop: req.eventLoop)
-            task.whenSuccess { item in
-                try? res.send(json: item)
-                res.completed(.accepted)
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
+        let task = personApi.insert(data: data, eventLoop: req.eventLoop)
+        task.whenSuccess { item in
+            try? res.send(json: item)
+            res.completed(.created)
+        }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
+        }
+    }
+    
+    router.put("/api/person/:id") { req, res in
+        guard let data = req.bodyData else {
+            res.completed(.badRequest)
+            return
         }
         
-        router.delete("/api/person/:id") { req, res in
-            guard let id: Int = req.getParam("id") else {
-                res.completed(.badRequest)
-                return
-            }
-            
-            let task = self.personApi.delete(id: id, eventLoop: req.eventLoop)
-            task.whenSuccess { item in
-                res.completed(.noContent)
-            }
-            task.whenFailure { error in
-                print(error)
-                res.completed(.internalServerError)
-            }
+        let task = personApi.update(data: data, eventLoop: req.eventLoop)
+        task.whenSuccess { item in
+            try? res.send(json: item)
+            res.completed(.accepted)
+        }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
+        }
+    }
+    
+    router.delete("/api/person/:id") { req, res in
+        guard let id: Int = req.getParam("id") else {
+            res.completed(.badRequest)
+            return
+        }
+        
+        let task = personApi.delete(id: id, eventLoop: req.eventLoop)
+        task.whenSuccess { item in
+            res.completed(.noContent)
+        }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
         }
     }
 }
+

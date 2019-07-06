@@ -8,56 +8,55 @@
 import ZenNIO
 import ZenUI
 
-class HelloController {
-    fileprivate let houseAnimals = ["🐶", "🐱"]
-    fileprivate let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
-    fileprivate let cityAnimals = ["🐦", "🐭"]
-    fileprivate var counter = 0
+func makeHelloHandlers(router: Router) {
+
+    let houseAnimals = ["🐶", "🐱"]
+    let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
+    let cityAnimals = ["🐦", "🐭"]
+    var counter = 0
+
+    router.get("/hello") { req, res in
+        res.send(text: "Hello World!")
+        res.completed()
+    }
     
-    init(router: Router) {
-        
-        router.get("/hello") { req, res in
-            res.send(text: "Hello World!")
-            res.completed()
-        }
-        
-        router.get("/hello.html") { req, res in
-            self.counter += 1
+    router.get("/hello/:name") { req, res in
+        do {
+            guard let name: String = req.getParam("name") else {
+                throw HttpError.badRequest
+            }
             
-            let context: [String : Any] = [
-                "name": "Animals",
-                "houseAnimals": self.houseAnimals,
-                "farmAnimals": self.farmAnimals,
-                "cityAnimals": self.cityAnimals,
-                "counter": self.counter
+            let json = [
+                "ip": req.clientIp,
+                "message": "Hello \(name)!"
             ]
-            do {
-                try res.send(template: "hello.html", context: context)
-                res.completed()
-            } catch {
-                print(error)
-                res.completed(.internalServerError)
-            }
+            try res.send(json: json)
+            res.completed()
+        } catch HttpError.badRequest {
+            res.completed(.badRequest)
+        } catch {
+            print(error)
+            res.completed(.internalServerError)
         }
+    }
+    
+    router.get("/hello.html") { req, res in
+        counter += 1
         
-        router.get("/hello/:name") { req, res in
-            do {
-                guard let name: String = req.getParam("name") else {
-                    throw HttpError.badRequest
-                }
-                
-                let json = [
-                    "ip": req.clientIp,
-                    "message": "Hello \(name)!"
-                ]
-                try res.send(json: json)
-                res.completed()
-            } catch HttpError.badRequest {
-                res.completed(.badRequest)
-            } catch {
-                print(error)
-                res.completed(.internalServerError)
-            }
+        let context: [String : Any] = [
+            "name": "Animals",
+            "houseAnimals": houseAnimals,
+            "farmAnimals": farmAnimals,
+            "cityAnimals": cityAnimals,
+            "counter": counter
+        ]
+        do {
+            try res.send(template: "hello.html", context: context)
+            res.completed()
+        } catch {
+            print(error)
+            res.completed(.internalServerError)
         }
     }
 }
+
