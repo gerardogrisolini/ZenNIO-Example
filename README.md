@@ -1,6 +1,6 @@
 # ZenNIO-Example
 
-Example REST API implementation with SQLite.
+Example REST API implementation with PostgresSQL.
 
 ## Clone and run
 ```
