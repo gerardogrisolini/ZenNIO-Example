@@ -7,10 +7,11 @@
 
 import Foundation
 import ZenNIO
+import ZenPostgres
 
-func makePersonHandlers(router: Router) {
+func makePersonHandlers(router: Router, db: Database) {
     
-    let personApi = ZenIoC.shared.resolve() as PersonApi
+    let personApi = PersonApi(db: db)
     
     router.get("/") { req, res in
         res.addHeader(.location, value: "/index.html")
@@ -18,7 +19,8 @@ func makePersonHandlers(router: Router) {
     }
     
     router.get("/api/person") { req, res in
-        let task = personApi.select(eventLoop: req.eventLoop)
+        let promise = req.eventLoop.makePromise(of: [Person].self)
+        let task = personApi.select(promise: promise)
         task.whenSuccess { items in
             try? res.send(json: items)
             res.completed()
@@ -35,7 +37,8 @@ func makePersonHandlers(router: Router) {
             return
         }
         
-        let task = personApi.select(id: id, eventLoop: req.eventLoop)
+        let promise = req.eventLoop.makePromise(of: Person?.self)
+        let task = personApi.select(id: id, promise: promise)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed()
@@ -52,7 +55,8 @@ func makePersonHandlers(router: Router) {
             return
         }
         
-        let task = personApi.insert(data: data, eventLoop: req.eventLoop)
+        let promise = req.eventLoop.makePromise(of: Person.self)
+        let task = personApi.insert(data: data, promise: promise)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed(.created)
@@ -69,7 +73,8 @@ func makePersonHandlers(router: Router) {
             return
         }
         
-        let task = personApi.update(data: data, eventLoop: req.eventLoop)
+        let promise = req.eventLoop.makePromise(of: Person.self)
+        let task = personApi.update(data: data, promise: promise)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed(.accepted)
@@ -86,7 +91,8 @@ func makePersonHandlers(router: Router) {
             return
         }
         
-        let task = personApi.delete(id: id, eventLoop: req.eventLoop)
+        let promise = req.eventLoop.makePromise(of: Bool.self)
+        let task = personApi.delete(id: id, promise: promise)
         task.whenSuccess { item in
             res.completed(.noContent)
         }

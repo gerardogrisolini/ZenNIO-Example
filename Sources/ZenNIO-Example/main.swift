@@ -8,23 +8,27 @@
 import ZenNIO
 import ZenPostgres
 
+
+/// DATABASE
 let config = PostgresConfig(
-    host: "zenretail-db.westeurope.cloudapp.azure.com",
-    port: 5433,
+    host: "217.61.121.221",
+    port: 5432,
     tls: false,
     username: "postgres",
-    password: "PwjwdwaEKk",
-    database: "tessilnova"
+    password: "pT4F7Ik96a",
+    database: "zennio"
 )
 let db = try ZenPostgres(config: config)
 defer { try? db.close() }
 
-ZenIoC.shared.register { PersonApi(db: db) as PersonApi }
 
+/// ROUTES
 let router = Router()
 makeHelloHandlers(router: router)
-makePersonHandlers(router: router)
+makePersonHandlers(router: router, db: db)
 
+
+/// SERVER
 let server = ZenNIO(router: router)
 server.addWebroot(path: "webroot")
 server.addAuthentication(handler: { (email, password) -> String? in
@@ -36,5 +40,4 @@ server.addAuthentication(handler: { (email, password) -> String? in
 server.setFilter(true, methods: [.POST], url: "/api/person")
 server.setFilter(true, methods: [.PUT, .DELETE], url: "/api/person/*")
 //server.addCORS()
-
 try server.start()

@@ -10,7 +10,7 @@ import NIO
 import ZenPostgres
 
 
-class PersonApi : TableApi {
+class PersonApi : ApiProtocol {
 
     private let db: Database
     
@@ -23,8 +23,7 @@ class PersonApi : TableApi {
         }
     }
     
-    func select(eventLoop: EventLoop) -> EventLoopFuture<[Person]> {
-        let promise = eventLoop.makePromise(of: [Person].self)
+    func select(promise: EventLoopPromise<[Person]>) -> EventLoopFuture<[Person]> {
         self.db.connectAsync { conn in
             if let db = conn {
                 Person(db: db).queryAsync(orderby: ["lastName", "firstName"]) { (result: Result<[Person], Error>) in
@@ -42,8 +41,7 @@ class PersonApi : TableApi {
         return promise.futureResult
     }
     
-    func select(id: Int, eventLoop: EventLoop) -> EventLoopFuture<Person?> {
-        let promise = eventLoop.makePromise(of: Person?.self)
+    func select(id: Int, promise: EventLoopPromise<Person?>) -> EventLoopFuture<Person?> {
         self.db.connectAsync { conn in
             if let db = conn {
                 Person(db: db).getAsync(id) { (result: Result<Person?, Error>) in
@@ -61,8 +59,7 @@ class PersonApi : TableApi {
         return promise.futureResult
     }
     
-    func insert(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
-        let promise = eventLoop.makePromise(of: Person.self)
+    func insert(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
         do {
             let item = try JSONDecoder().decode(Person.self, from: data)
             self.db.connectAsync { conn in
@@ -84,9 +81,7 @@ class PersonApi : TableApi {
         return promise.futureResult
     }
 
-    func update(data: Data, eventLoop: EventLoop) -> EventLoopFuture<Person> {
-        let promise = eventLoop.makePromise(of: Person.self)
-
+    func update(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
         do {
             let item = try JSONDecoder().decode(Person.self, from: data)
 
@@ -109,9 +104,7 @@ class PersonApi : TableApi {
         return promise.futureResult
     }
     
-    func delete(id: Int, eventLoop: EventLoop) -> EventLoopFuture<Bool> {
-        let promise = eventLoop.makePromise(of: Bool.self)
-
+    func delete(id: Int, promise: EventLoopPromise<Bool>) -> EventLoopFuture<Bool> {
         self.db.connectAsync { conn in
             if let db = conn {
                 Person(db: db).deleteAsync(id) {  (result: Result<Int, Error>) in
