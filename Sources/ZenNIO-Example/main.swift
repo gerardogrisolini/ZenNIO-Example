@@ -11,12 +11,12 @@ import ZenPostgres
 
 /// DATABASE
 let config = PostgresConfig(
-    host: "217.61.121.221",
+    host: "grisolini.c3ll1olwkoxc.us-east-2.rds-preview.amazonaws.com",
     port: 5432,
     tls: false,
     username: "postgres",
-    password: "pT4F7Ik96a",
-    database: "zennio"
+    password: "PwjwdwaEKk",
+    database: "zenretail"
 )
 let db = try ZenPostgres(config: config)
 defer { try? db.close() }

@@ -18,6 +18,22 @@ func makePersonHandlers(router: Router, db: Database) {
         res.completed(.found)
     }
     
+    router.get("/table.html") { req, res in
+        let promise = req.eventLoop.makePromise(of: [Person].self)
+        let task = personApi.select(promise: promise)
+        task.whenSuccess { items in
+            let context: [String : Any] = [
+                "rows": items
+            ]
+            try? res.send(template: "table.html", context: context)
+            res.completed()
+        }
+        task.whenFailure { error in
+            print(error)
+            res.completed(.internalServerError)
+        }
+    }
+    
     router.get("/api/person") { req, res in
         let promise = req.eventLoop.makePromise(of: [Person].self)
         let task = personApi.select(promise: promise)
