@@ -9,6 +9,7 @@ import Foundation
 import ZenNIO
 import ZenPostgres
 
+
 func makePersonHandlers(router: Router, db: Database) {
     
     let personApi = PersonApi(db: db)
@@ -19,31 +20,28 @@ func makePersonHandlers(router: Router, db: Database) {
     }
     
     router.get("/table.html") { req, res in
-        let promise = req.eventLoop.makePromise(of: [Person].self)
-        let task = personApi.select(promise: promise)
-        task.whenSuccess { items in
-            let context: [String : Any] = [
-                "rows": items
-            ]
-            try? res.send(template: "table.html", context: context)
-            res.completed()
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                let context: [String : Any] = [
+                    "rows": try personApi.select()
+                ]
+                try res.send(template: "table.html", context: context)
+                res.completed()
+            } catch {
+                res.completed(.internalServerError)
+            }
         }
     }
     
     router.get("/api/person") { req, res in
-        let promise = req.eventLoop.makePromise(of: [Person].self)
-        let task = personApi.select(promise: promise)
-        task.whenSuccess { items in
-            try? res.send(json: items)
-            res.completed()
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                let items = try personApi.select()
+                try res.send(json: items)
+                res.completed()
+            } catch {
+                res.completed(.internalServerError)
+            }
         }
     }
     
@@ -53,15 +51,14 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person?.self)
-        let task = personApi.select(id: id, promise: promise)
-        task.whenSuccess { item in
-            try? res.send(json: item)
-            res.completed()
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                let item = try personApi.select(id: id)
+                try res.send(json: item)
+                res.completed()
+            } catch {
+                res.completed(.internalServerError)
+            }
         }
     }
     
@@ -71,15 +68,14 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person.self)
-        let task = personApi.insert(data: data, promise: promise)
-        task.whenSuccess { item in
-            try? res.send(json: item)
-            res.completed(.created)
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                let item = try personApi.insert(data: data)
+                try res.send(json: item)
+                res.completed(.created)
+            } catch {
+                res.completed(.internalServerError)
+            }
         }
     }
     
@@ -89,15 +85,13 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person.self)
-        let task = personApi.update(data: data, promise: promise)
-        task.whenSuccess { item in
-            try? res.send(json: item)
-            res.completed(.accepted)
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                try personApi.update(data: data)
+                res.completed(.accepted)
+            } catch {
+                res.completed(.notModified)
+            }
         }
     }
     
@@ -107,14 +101,13 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Bool.self)
-        let task = personApi.delete(id: id, promise: promise)
-        task.whenSuccess { item in
-            res.completed(.noContent)
-        }
-        task.whenFailure { error in
-            print(error)
-            res.completed(.internalServerError)
+        req.eventLoop.execute {
+            do {
+                try personApi.delete(id: id)
+                res.completed(.noContent)
+            } catch {
+                res.completed(.internalServerError)
+            }
         }
     }
 }

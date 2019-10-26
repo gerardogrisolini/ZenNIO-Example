@@ -23,77 +23,40 @@ class PersonApi : ApiProtocol {
         }
     }
     
-    func select(promise: EventLoopPromise<[Person]>) -> EventLoopFuture<[Person]> {
-        DispatchQueue.global().async {
-            do {
-                let db = try self.db.connect()
-                defer { db.disconnect() }
-                let rows: [Person] = try Person(db: db).query(orderby: ["lastName", "firstName"])
-                promise.succeed(rows)
-            } catch {
-                promise.fail(error)
-            }
-        }
-        return promise.futureResult
+    func select() throws -> [Person] {
+        let db = try self.db.connect()
+        defer { db.disconnect() }
+        return try Person(db: db).query(orderby: ["lastName", "firstName"])
     }
     
-    func select(id: Int, promise: EventLoopPromise<Person?>) -> EventLoopFuture<Person?> {
-        DispatchQueue.global().async {
-            do {
-                let db = try self.db.connect()
-                defer { db.disconnect() }
-                let row = Person(db: db)
-                try row.get(id)
-                promise.succeed(row)
-            } catch {
-                promise.fail(error)
-            }
+    func select(id: Int) throws -> Person? {
+        let db = try self.db.connect()
+        defer { db.disconnect() }
+        do {
+            let row = Person(db: db)
+            try row.get(id)
+            return row
+        } catch {
+            return nil
         }
-        return promise.futureResult
     }
     
-    func insert(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        DispatchQueue.global().async {
-            do {
-                let item = try JSONDecoder().decode(Person.self, from: data)
-                try item.save { id in
-                    item.id = id as! Int
-                    promise.succeed(item)
-                }
-            } catch {
-                promise.fail(error)
-            }
+    func insert(data: Data) throws -> Person {
+        let item = try JSONDecoder().decode(Person.self, from: data)
+        try item.save { id in
+            item.id = id as! Int
         }
-
-        return promise.futureResult
+        return item
     }
 
-    func update(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        DispatchQueue.global().async {
-            do {
-                let item = try JSONDecoder().decode(Person.self, from: data)
-                try item.save()
-                promise.succeed(item)
-            } catch {
-                promise.fail(error)
-            }
-        }
-
-        return promise.futureResult
+    func update(data: Data) throws {
+        let item = try JSONDecoder().decode(Person.self, from: data)
+        try item.save()
     }
     
-    func delete(id: Int, promise: EventLoopPromise<Bool>) -> EventLoopFuture<Bool> {
-        DispatchQueue.global().async {
-            do {
-                let row = Person()
-                row.id = id
-                try row.delete()
-                promise.succeed(true)
-            } catch {
-                promise.fail(error)
-            }
-        }
-
-        return promise.futureResult
+    func delete(id: Int) throws {
+        let row = Person()
+        row.id = id
+        try row.delete()
     }
 }
