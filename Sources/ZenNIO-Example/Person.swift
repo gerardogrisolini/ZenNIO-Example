@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import PostgresNIO
+import PostgresClientKit
 import ZenPostgres
 
 class Person: PostgresTable, Codable {
@@ -27,11 +27,11 @@ class Person: PostgresTable, Codable {
         self.tableIndexes.append("email")
     }
 
-    override func decode(row: PostgresRow) {
-        id = row.column("id")?.int ?? 0
-        firstName = row.column("firstName")?.string ?? ""
-        lastName = row.column("lastName")?.string ?? ""
-        email = row.column("email")?.string ?? ""
+    override func decode(row: Row) {
+        id = (try? row.columns[0].int()) ?? 0
+        firstName = (try? row.columns[1].string()) ?? ""
+        lastName = (try? row.columns[2].string()) ?? ""
+        email = (try? row.columns[3].string()) ?? ""
     }
     
     required init(from decoder: Decoder) throws {

@@ -24,98 +24,73 @@ class PersonApi : ApiProtocol {
     }
     
     func select(promise: EventLoopPromise<[Person]>) -> EventLoopFuture<[Person]> {
-        self.db.connectAsync { conn in
-            if let db = conn {
-                Person(db: db).queryAsync(orderby: ["lastName", "firstName"]) { (result: Result<[Person], Error>) in
-                    switch result {
-                    case .success(let rows):
-                        promise.succeed(rows)
-                    case .failure(let error):
-                        promise.fail(error)
-                    }
-                    db.disconnect()
-                }
+        DispatchQueue.global().async {
+            do {
+                let db = try self.db.connect()
+                defer { db.disconnect() }
+                let rows: [Person] = try Person(db: db).query(orderby: ["lastName", "firstName"])
+                promise.succeed(rows)
+            } catch {
+                promise.fail(error)
             }
         }
-        
         return promise.futureResult
     }
     
     func select(id: Int, promise: EventLoopPromise<Person?>) -> EventLoopFuture<Person?> {
-        self.db.connectAsync { conn in
-            if let db = conn {
-                Person(db: db).getAsync(id) { (result: Result<Person?, Error>) in
-                    switch result {
-                    case .success(let row):
-                        promise.succeed(row)
-                    case .failure(let error):
-                        promise.fail(error)
-                    }
-                    db.disconnect()
-                }
+        DispatchQueue.global().async {
+            do {
+                let db = try self.db.connect()
+                defer { db.disconnect() }
+                let row = Person(db: db)
+                try row.get(id)
+                promise.succeed(row)
+            } catch {
+                promise.fail(error)
             }
         }
-        
         return promise.futureResult
     }
     
     func insert(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        do {
-            let item = try JSONDecoder().decode(Person.self, from: data)
-            self.db.connectAsync { conn in
-                if let db = conn {
-                    item.db = db
-                    item.saveAsync { id in
-                        item.id = id as! Int
-                        promise.succeed(item)
-                        db.disconnect()
-                    }
-                } else {
-                    promise.fail(ZenError.connectionNotFound)
+        DispatchQueue.global().async {
+            do {
+                let item = try JSONDecoder().decode(Person.self, from: data)
+                try item.save { id in
+                    item.id = id as! Int
+                    promise.succeed(item)
                 }
+            } catch {
+                promise.fail(error)
             }
-        } catch {
-            promise.fail(error)
         }
-        
+
         return promise.futureResult
     }
 
     func update(data: Data, promise: EventLoopPromise<Person>) -> EventLoopFuture<Person> {
-        do {
-            let item = try JSONDecoder().decode(Person.self, from: data)
-
-            self.db.connectAsync { conn in
-                if let db = conn {
-                    item.db = db
-                    item.saveAsync { _ in
-                        promise.succeed(item)
-                        db.disconnect()
-                    }
-                } else {
-                    promise.fail(ZenError.connectionNotFound)
-                }
+        DispatchQueue.global().async {
+            do {
+                let item = try JSONDecoder().decode(Person.self, from: data)
+                try item.save()
+                promise.succeed(item)
+            } catch {
+                promise.fail(error)
             }
-            
-        } catch {
-            promise.fail(error)
         }
-        
+
         return promise.futureResult
     }
     
     func delete(id: Int, promise: EventLoopPromise<Bool>) -> EventLoopFuture<Bool> {
-        self.db.connectAsync { conn in
-            if let db = conn {
-                Person(db: db).deleteAsync(id) {  (result: Result<Int, Error>) in
-                    switch result {
-                    case .success(let count):
-                        promise.succeed(count > 0)
-                    case .failure(let error):
-                        promise.fail(error)
-                    }
-                    db.disconnect()
-                }
+        DispatchQueue.global().async {
+            do {
+                let row = Person()
+                row.id = id
+                try row.delete()
+                promise.succeed(true)
+            } catch {
+                promise.fail(error)
             }
         }
 
