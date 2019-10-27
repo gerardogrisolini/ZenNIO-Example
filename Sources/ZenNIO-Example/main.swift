@@ -26,8 +26,9 @@ makePersonHandlers(router: router, db: db)
 
 
 /// SERVER
-let server = ZenNIO(router: router)
+let server = ZenNIO(host: "www.webretail.cloud", router: router)
 server.addWebroot(path: "webroot")
+try server.addSSL(certFile: "certificate.crt", keyFile: "private.pem", http: .v2)
 server.addAuthentication(handler: { (email, password) -> String? in
     if email == "admin" && password == "admin" {
         return "userId"

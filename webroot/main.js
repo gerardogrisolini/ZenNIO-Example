@@ -2,6 +2,7 @@ var token = localStorage.getItem('token');
 
 function unauthorized() {
     alert('401 - Unauthorized');
+    localStorage.removeItem('token')
     location.href = '/auth';
 }
 
