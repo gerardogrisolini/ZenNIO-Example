@@ -7,17 +7,18 @@
 
 import ZenNIO
 import ZenPostgres
-import PostgresClientKit
 
 
 /// DATABASE
-var config = PostgresClientKit.ConnectionConfiguration()
-config.host = "217.61.121.221"
-config.database = "test"
-config.user = "postgres"
-config.credential = .md5Password(password: "pT4F7Ik96a")
+let config = PostgresConfig(
+    host: "localhost",
+    port: 5432,
+    tls: false,
+    username: "gerardo",
+    password: "",
+    database: "zenpostgres"
+)
 let db = try ZenPostgres(config: config)
-
 
 /// ROUTES
 let router = Router()
@@ -26,9 +27,9 @@ makePersonHandlers(router: router, db: db)
 
 
 /// SERVER
-let server = ZenNIO(host: "www.webretail.cloud", router: router)
-server.addWebroot(path: "webroot")
-try server.addSSL(certFile: "certificate.crt", keyFile: "private.pem", http: .v2)
+let server = ZenNIO(router: router)
+server.addWebroot()
+//try server.addSSL(certFile: "certificate.crt", keyFile: "private.pem", http: .v2)
 server.addAuthentication(handler: { (email, password) -> String? in
     if email == "admin" && password == "admin" {
         return "userId"
