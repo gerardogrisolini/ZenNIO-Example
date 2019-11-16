@@ -12,13 +12,11 @@ protocol ApiProtocol {
     
     associatedtype T: Codable
     
-    func select(promise: EventLoopPromise<[T]>) -> EventLoopFuture<[T]>
+    func select() -> EventLoopFuture<[T]>
     
-    func select(id: Int, promise: EventLoopPromise<T?>) -> EventLoopFuture<T?>
+    func select(id: Int) -> EventLoopFuture<T>
     
-    func insert(data: Data, promise: EventLoopPromise<T>) -> EventLoopFuture<T>
+    func save(item: Person) -> EventLoopFuture<T>
     
-    func update(data: Data, promise: EventLoopPromise<T>) -> EventLoopFuture<T>
-    
-    func delete(id: Int, promise: EventLoopPromise<Bool>) -> EventLoopFuture<Bool>
+    func delete(id: Int) -> EventLoopFuture<Bool>
 }

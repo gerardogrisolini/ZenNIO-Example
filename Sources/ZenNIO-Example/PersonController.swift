@@ -9,9 +9,9 @@ import Foundation
 import ZenNIO
 import ZenPostgres
 
-func makePersonHandlers(router: Router, db: Database) {
+func makePersonHandlers(router: Router) {
     
-    let personApi = PersonApi(db: db)
+    let personApi = PersonApi()
     
     router.get("/") { req, res in
         res.addHeader(.location, value: "/index.html")
@@ -19,8 +19,7 @@ func makePersonHandlers(router: Router, db: Database) {
     }
     
     router.get("/table.html") { req, res in
-        let promise = req.eventLoop.makePromise(of: [Person].self)
-        let task = personApi.select(promise: promise)
+        let task = personApi.select()
         task.whenSuccess { items in
             let context: [String : Any] = [
                 "rows": items
@@ -35,8 +34,7 @@ func makePersonHandlers(router: Router, db: Database) {
     }
     
     router.get("/api/person") { req, res in
-        let promise = req.eventLoop.makePromise(of: [Person].self)
-        let task = personApi.select(promise: promise)
+        let task = personApi.select()
         task.whenSuccess { items in
             try? res.send(json: items)
             res.completed()
@@ -53,8 +51,7 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person?.self)
-        let task = personApi.select(id: id, promise: promise)
+        let task = personApi.select(id: id)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed()
@@ -66,13 +63,13 @@ func makePersonHandlers(router: Router, db: Database) {
     }
     
     router.post("/api/person") { req, res in
-        guard let data = req.bodyData else {
+        guard let data = req.bodyData,
+            let item = try? JSONDecoder().decode(Person.self, from: data) else {
             res.completed(.badRequest)
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person.self)
-        let task = personApi.insert(data: data, promise: promise)
+        let task = personApi.save(item: item)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed(.created)
@@ -83,14 +80,14 @@ func makePersonHandlers(router: Router, db: Database) {
         }
     }
     
-    router.put("/api/person/:id") { req, res in
-        guard let data = req.bodyData else {
+    router.put("/api/person") { req, res in
+        guard let data = req.bodyData,
+            let item = try? JSONDecoder().decode(Person.self, from: data) else {
             res.completed(.badRequest)
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Person.self)
-        let task = personApi.update(data: data, promise: promise)
+        let task = personApi.save(item: item)
         task.whenSuccess { item in
             try? res.send(json: item)
             res.completed(.accepted)
@@ -107,8 +104,7 @@ func makePersonHandlers(router: Router, db: Database) {
             return
         }
         
-        let promise = req.eventLoop.makePromise(of: Bool.self)
-        let task = personApi.delete(id: id, promise: promise)
+        let task = personApi.delete(id: id)
         task.whenSuccess { item in
             res.completed(.noContent)
         }

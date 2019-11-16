@@ -5,8 +5,32 @@
 //  Created by admin on 29/12/2018.
 //
 
+import NIO
 import ZenNIO
 import ZenPostgres
+
+/// ROUTES AND HANDLERS
+let router = Router()
+makeHelloHandlers(router: router)
+makePersonHandlers(router: router)
+
+/// SERVER
+let server = ZenNIO(router: router)
+server.addWebroot()
+//server.addCORS()
+
+/// AUTHENTICATION
+server.addAuthentication(handler: { (email, password) -> EventLoopFuture<String> in
+    var userId = ""
+    if email == "admin" && password == "admin" {
+        userId = "userId"
+    }
+    return server.eventLoopGroup.future(userId)
+})
+
+/// FILTERS
+server.setFilter(true, methods: [.POST, .PUT], url: "/api/person")
+server.setFilter(true, methods: [.DELETE], url: "/api/person/*")
 
 
 /// DATABASE
@@ -18,25 +42,7 @@ let config = PostgresConfig(
     password: "",
     database: "zenpostgres"
 )
-let db = try ZenPostgres(config: config)
+_ = ZenPostgres(config: config, eventLoopGroup: server.eventLoopGroup)
 
-/// ROUTES
-let router = Router()
-makeHelloHandlers(router: router)
-makePersonHandlers(router: router, db: db)
-
-
-/// SERVER
-let server = ZenNIO(router: router)
-server.addWebroot()
-//try server.addSSL(certFile: "certificate.crt", keyFile: "private.pem", http: .v2)
-server.addAuthentication(handler: { (email, password) -> String? in
-    if email == "admin" && password == "admin" {
-        return "userId"
-    }
-    return nil
-})
-server.setFilter(true, methods: [.POST], url: "/api/person")
-server.setFilter(true, methods: [.PUT, .DELETE], url: "/api/person/*")
-//server.addCORS()
+/// RUN
 try server.start()

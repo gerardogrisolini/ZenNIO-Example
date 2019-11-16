@@ -8,7 +8,7 @@ function unauthorized() {
 
 function updatePerson(data) {
     data.id = parseInt(data.id);
-    fetch('/api/person/' + data.id, {
+    fetch('/api/person', {
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': token
