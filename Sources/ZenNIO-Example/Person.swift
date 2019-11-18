@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import PostgresKit
+import PostgresNIO
 import ZenPostgres
 
 class Person: PostgresTable, Codable {
@@ -15,12 +15,12 @@ class Person: PostgresTable, Codable {
     var lastName: String = ""
     var email: String = ""
 
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case firstName
-        case lastName
-        case email
-    }
+//    private enum CodingKeys: String, CodingKey {
+//        case id
+//        case firstName
+//        case lastName
+//        case email
+//    }
 
     required init() {
         super.init()
@@ -34,21 +34,21 @@ class Person: PostgresTable, Codable {
         email = row.column("email")?.string ?? email
     }
     
-    required init(from decoder: Decoder) throws {
-        super.init()
-        
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(Int.self, forKey: .id)
-        firstName = try container.decode(String.self, forKey: .firstName)
-        lastName = try container.decode(String.self, forKey: .lastName)
-        email = try container.decode(String.self, forKey: .email)
-   }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(firstName, forKey: .firstName)
-        try container.encode(lastName, forKey: .lastName)
-        try container.encode(email, forKey: .email)
-    }
+//    required init(from decoder: Decoder) throws {
+//        super.init()
+//
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        id = try container.decode(Int.self, forKey: .id)
+//        firstName = try container.decode(String.self, forKey: .firstName)
+//        lastName = try container.decode(String.self, forKey: .lastName)
+//        email = try container.decode(String.self, forKey: .email)
+//   }
+//
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(id, forKey: .id)
+//        try container.encode(firstName, forKey: .firstName)
+//        try container.encode(lastName, forKey: .lastName)
+//        try container.encode(email, forKey: .email)
+//    }
 }

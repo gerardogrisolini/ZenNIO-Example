@@ -9,6 +9,10 @@ import NIO
 import ZenNIO
 import ZenPostgres
 
+
+/// DEPENDENCY INJECTION
+ZenIoC.shared.register { PersonApi() }
+
 /// ROUTES AND HANDLERS
 let router = Router()
 makeHelloHandlers(router: router)

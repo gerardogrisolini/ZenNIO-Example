@@ -11,8 +11,8 @@ import ZenPostgres
 
 func makePersonHandlers(router: Router) {
     
-    let personApi = PersonApi()
-    
+    let personApi = ZenIoC.shared.resolve() as PersonApi
+
     router.get("/") { req, res in
         res.addHeader(.location, value: "/index.html")
         res.completed(.found)
@@ -32,6 +32,9 @@ func makePersonHandlers(router: Router) {
             res.completed(.internalServerError)
         }
     }
+    
+    
+    /// REST API
     
     router.get("/api/person") { req, res in
         let task = personApi.select()

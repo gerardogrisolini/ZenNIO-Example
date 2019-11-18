@@ -25,7 +25,7 @@ func makeHelloHandlers(router: Router) {
             guard let name: String = req.getParam("name") else {
                 throw HttpError.badRequest
             }
-            
+
             let json = [
                 "ip": req.clientIp,
                 "message": "Hello \(name)!"
