@@ -9,9 +9,10 @@ import Foundation
 import ZenNIO
 import ZenPostgres
 
-func makePersonHandlers(router: Router) {
+func makePersonHandlers() {
     
     let personApi = ZenIoC.shared.resolve() as PersonApi
+    let router = ZenIoC.shared.resolve() as Router
 
     router.get("/") { req, res in
         res.addHeader(.location, value: "/index.html")

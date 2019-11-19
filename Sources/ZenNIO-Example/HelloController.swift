@@ -8,8 +8,10 @@
 import ZenNIO
 import ZenUI
 
-func makeHelloHandlers(router: Router) {
+func makeHelloHandlers() {
 
+    let router = ZenIoC.shared.resolve() as Router
+    
     let houseAnimals = ["🐶", "🐱"]
     let farmAnimals = ["🐮", "🐔", "🐑", "🐶", "🐱"]
     let cityAnimals = ["🐦", "🐭"]

@@ -10,16 +10,8 @@ import ZenNIO
 import ZenPostgres
 
 
-/// DEPENDENCY INJECTION
-ZenIoC.shared.register { PersonApi() }
-
-/// ROUTES AND HANDLERS
-let router = Router()
-makeHelloHandlers(router: router)
-makePersonHandlers(router: router)
-
 /// SERVER
-let server = ZenNIO(router: router)
+let server = ZenNIO()
 server.addWebroot()
 //server.addCORS()
 
@@ -31,6 +23,13 @@ server.addAuthentication(handler: { (email, password) -> EventLoopFuture<String>
     }
     return server.eventLoopGroup.future(userId)
 })
+
+/// DEPENDENCY INJECTION
+ZenIoC.shared.register { PersonApi() }
+
+/// ROUTES AND HANDLERS
+makeHelloHandlers()
+makePersonHandlers()
 
 /// FILTERS
 server.setFilter(true, methods: [.POST, .PUT], url: "/api/person")
