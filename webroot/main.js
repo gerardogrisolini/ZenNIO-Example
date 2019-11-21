@@ -49,11 +49,11 @@ function getPersons() {
       addRowPos:"top",          //when adding a new row, add it to the top of the table
       history:false,             //allow undo and redo actions on the table
       pagination:"local",       //paginate the data
-      paginationSize:10,         //allow 7 rows per page of data
+      paginationSize:20,         //allow 7 rows per page of data
       movableColumns:false,      //allow column order to be changed
       resizableRows:false,       //allow row order to be changed
       initialSort:[             //set the initial sort order of the data
-        {column:"lastName", dir:"asc"},
+        {column:"Id", dir:"asc"},
       ],
       placeholder:"No Data Set",
       //rowClick: function(e, row) { // Trigger an alert message when the row is clicked.

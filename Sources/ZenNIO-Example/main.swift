@@ -10,30 +10,11 @@ import ZenNIO
 import ZenPostgres
 import Logging
 
-/// LOGGER
-var logger = Logger(label: "ZenNIO-Example")
-logger.logLevel = .trace
 
 /// SERVER
-let server = ZenNIO(logger: logger)
+let server = ZenNIO()
+server.logger.logLevel = .trace
 server.addWebroot()
-
-/// ROUTES AND HANDLERS
-makeHelloHandlers()
-makePersonHandlers()
-
-/// AUTHENTICATION
-server.addAuthentication(handler: { (email, password) -> EventLoopFuture<String> in
-    var userId = ""
-    if email == "admin" && password == "admin" {
-        userId = "userId"
-    }
-    return server.eventLoopGroup.future(userId)
-})
-
-/// FILTERS
-server.setFilter(true, methods: [.POST, .PUT], url: "/api/person")
-server.setFilter(true, methods: [.DELETE], url: "/api/person/*")
 
 /// DATABASE
 let config = PostgresConfig(
@@ -43,9 +24,24 @@ let config = PostgresConfig(
     username: "gerardo",
     password: "",
     database: "zenpostgres",
-    logger: logger
+    logger: server.logger
 )
-_ = ZenPostgres(config: config, eventLoopGroup: server.eventLoopGroup)
+ZenPostgres.pool.setup(config: config, eventLoopGroup: server.eventLoopGroup)
+
+/// ROUTES AND HANDLERS
+makeHelloHandlers()
+makePersonHandlers()
+
+/// AUTHENTICATION AND FILTERS
+server.addAuthentication(handler: { (email, password) -> EventLoopFuture<String> in
+    var userId = ""
+    if email == "admin" && password == "admin" {
+        userId = "userId"
+    }
+    return server.eventLoopGroup.future(userId)
+})
+server.setFilter(true, methods: [.POST, .PUT], url: "/api/person")
+server.setFilter(true, methods: [.DELETE], url: "/api/person/*")
 
 /// RUN
 try server.start()

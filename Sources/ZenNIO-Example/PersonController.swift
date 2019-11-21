@@ -11,7 +11,7 @@ import ZenPostgres
 
 func makePersonHandlers() {
     
-    let personApi = PersonApi()
+    let personApi = PersonApi()    
     let router = ZenIoC.shared.resolve() as Router
 
     router.get("/") { req, res in
