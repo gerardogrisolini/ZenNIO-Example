@@ -8,7 +8,6 @@
 import NIO
 import ZenNIO
 import ZenPostgres
-import Logging
 
 class PersonApi : ApiProtocol {
     

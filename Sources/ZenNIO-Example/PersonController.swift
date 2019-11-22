@@ -8,11 +8,13 @@
 import Foundation
 import ZenNIO
 import ZenPostgres
+import Logging
 
 func makePersonHandlers() {
     
     let personApi = PersonApi()    
     let router = ZenIoC.shared.resolve() as Router
+    let logger = ZenIoC.shared.resolve() as Logger
 
     router.get("/") { req, res in
         res.addHeader(.location, value: "/index.html")
@@ -29,7 +31,7 @@ func makePersonHandlers() {
             res.completed()
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
@@ -44,7 +46,7 @@ func makePersonHandlers() {
             res.completed()
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
@@ -61,7 +63,7 @@ func makePersonHandlers() {
             res.completed()
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
@@ -79,7 +81,7 @@ func makePersonHandlers() {
             res.completed(.created)
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
@@ -97,7 +99,7 @@ func makePersonHandlers() {
             res.completed(.accepted)
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
@@ -113,7 +115,7 @@ func makePersonHandlers() {
             res.completed(.noContent)
         }
         task.whenFailure { error in
-            print(error)
+            logger.error(Logger.Message(stringLiteral: error.localizedDescription))
             res.completed(.internalServerError)
         }
     }
