@@ -53,7 +53,7 @@ function getPersons() {
       movableColumns:false,      //allow column order to be changed
       resizableRows:false,       //allow row order to be changed
       initialSort:[             //set the initial sort order of the data
-        {column:"Id", dir:"asc"},
+        {column:"id", dir:"asc"},
       ],
       placeholder:"No Data Set",
       //rowClick: function(e, row) { // Trigger an alert message when the row is clicked.
@@ -97,7 +97,7 @@ function getPersons() {
         .then(response => response.status == 401 ? unauthorized() : response.json())
         .then(json => {
               data.id = json.id;
-              table.addRow(data);
+              table.addRow(0, data);
         })
         .catch(error => console.log(error));
     };

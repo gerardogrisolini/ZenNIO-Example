@@ -19,26 +19,24 @@ func makeHelloHandlers() {
 
     router.get("/hello") { req, res in
         res.send(text: "Hello World!")
-        res.completed()
+        res.success()
     }
     
     router.get("/hello/:name") { req, res in
-        do {
-            guard let name: String = req.getParam("name") else {
-                throw HttpError.badRequest
-            }
+        guard let name: String = req.getParam("name") else {
+            res.failure(.badRequest("parameter name"))
+            return
+        }
 
+        do {
             let json = [
                 "ip": req.clientIp,
                 "message": "Hello \(name)!"
             ]
             try res.send(json: json)
-            res.completed()
-        } catch HttpError.badRequest {
-            res.completed(.badRequest)
+            res.success()
         } catch {
-            print(error)
-            res.completed(.internalServerError)
+            res.failure(.internalError(error.localizedDescription))
         }
     }
     
@@ -54,10 +52,9 @@ func makeHelloHandlers() {
         ]
         do {
             try res.send(template: "hello.html", context: context)
-            res.completed()
+            res.success()
         } catch {
-            print(error)
-            res.completed(.internalServerError)
+            res.failure(.internalError(error.localizedDescription))
         }
     }
 }
