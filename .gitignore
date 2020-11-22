@@ -4,3 +4,5 @@
 /*.xcodeproj
 Package.resolved
 ZenNIO.db
+/.swiftpm
+

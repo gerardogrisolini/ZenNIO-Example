@@ -1,0 +1,21 @@
+{
+  "name": "ZenIoT",
+  "scripts": {
+  },
+  "env": {
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "cloudamqp",
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/vapor-community/heroku-buildpack.git"
+    }
+  ]
+}

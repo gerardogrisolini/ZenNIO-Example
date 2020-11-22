@@ -16,7 +16,7 @@ protocol ApiProtocol {
     
     func select(id: Int) -> EventLoopFuture<T>
     
-    func save(item: Person) -> EventLoopFuture<T>
+    func save(item: T) -> EventLoopFuture<T>
     
     func delete(id: Int) -> EventLoopFuture<Bool>
 }
