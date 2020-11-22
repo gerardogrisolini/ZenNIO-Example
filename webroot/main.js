@@ -87,21 +87,29 @@ function getDevices() {
     table = new Tabulator("#content", config);
     table.setData("/api/device");
     
+    var text = document.createElement("INPUT");
+    text.setAttribute("class", "tabulator-page");
+    text.setAttribute("style", "float: left");
+
     var btn = document.createElement("BUTTON");
-    btn.setAttribute("title", "Reboot");
+    btn.setAttribute("title", "Execute");
     btn.setAttribute("class", "tabulator-page");
     btn.setAttribute("style", "float: left");
     btn.onclick = function() {
-        executeOnDevice("reboot")
+        executeOnDevice(text.value);
     };
-    
-    var t = document.createTextNode("Reboot");
+    var t = document.createTextNode("Execute");
     btn.appendChild(t);
+
     document.getElementsByClassName("tabulator-paginator")[0].prepend(btn);
+    document.getElementsByClassName("tabulator-paginator")[0].prepend(text);
 }
 
 function executeOnDevice(method) {
     var selectedRows = table.getSelectedData();
+    
+    if (selectedRows.lenght == 0 || method == '') return;
+    
     var macAddress = selectedRows[0].macAddress;
     var model = { method: method, data: "" };
     fetch('/api/device/' + macAddress, {
