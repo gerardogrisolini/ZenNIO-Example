@@ -70,12 +70,12 @@ function getDevices() {
 //            updateDevice(cell.getRow().getData());
 //        },
         columns:[
-                {title:"Id", field:"id", sorter:"number", headerFilter:true, validator:"required"},
+                {title:"Id", field:"id", width: 80, sorter:"number", headerFilter:true, validator:"required"},
                 {title:"Name", field:"name", sorter:"string", headerFilter:true, validator:"required"},
-                {title:"MacAddress", field:"macAddress", sorter:"string", headerFilter:true, validator:"required"},
+                {title:"MacAddress", width: 140, field:"macAddress", sorter:"string", headerFilter:true, validator:"required"},
                 {title:"System", field:"system", orter:"string", headerFilter:true, validator:"required"},
-                {title:"Version", field:"version", orter:"string", headerFilter:true, validator:"required"},
-                {title:"Delete", formatter:"buttonCross", width:100, align:"center", headerSort:false, cellClick:function(e, cell) {
+                {title:"Version", width: 100, field:"version", orter:"string", headerFilter:true, validator:"required"},
+                {formatter:"buttonCross", width: 100, align:"center", headerSort:false, cellClick:function(e, cell) {
                         if (confirm('Are you sure you want to delete this entry?')) {
                             deleteDevice(cell.getRow());
                         }
